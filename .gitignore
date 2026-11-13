@@ -1,0 +1,27 @@
+# XAMPP / PHP projects
+*.orig
+*.bak
+
+# Dependencies
+/vendor/
+/vendor/
+
+# Compiled resources
+/dist/
+/public/dist/
+
+# Environment files
+.env*
+*.env
+
+# Uploads & media temp
+/uploads/*/.DS_Store
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo*
+
+# OS
+.DS_Store
