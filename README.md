@@ -1,174 +1,260 @@
 # FlowStuckHub
 
-Platform e-commerce distro barang gudang sederhana berbasis PHP Native + Tailwind CDN + Vanilla JS + Chart.js 4.4.1.
+Sistem katalog dan manajemen gudang berbasis PHP Native dan MySQL, dengan antarmuka hijau forest, tiga level pengguna, serta alur pesanan dan retur barang.
 
-## Visinya
+> Status: proyek demo dan pembelajaran. Data contoh disediakan, bukan data produksi.
 
-Aplikasi katalog barang dan dashboard pengelolaan gudang dengan identitas hijau hutan (#2E7D32), pensknikian, dan mudah digunakan.
+## Daftar isi
 
-## Stack Teknis
+- [Fitur](#fitur)
+- [Teknologi](#teknologi)
+- [Struktur folder](#struktur-folder)
+- [Persyaratan](#persyaratan)
+- [Instalasi](#instalasi)
+- [Akun demo](#akun-demo)
+- [Hak akses halaman](#hak-akses-halaman)
+- [Halaman demo statis](#halaman-demo-statis)
+- [Catatan keamanan](#catatan-keamanan)
+- [Kustomisasi](#kustomisasi)
+- [Troubleshooting](#troubleshooting)
 
-- **Bahasa**: PHP 8.3 Native (tidak framework)
-- **Styling**: Tailwind CSS via CDN dengan konfigurasi kustom
-- **Interaktivitas**: Vanilla JS, sessionStorage, Chart.js CDN (4.4.1)
-- **Font**: Plus Jakarta Sans (Google Fonts)
-- **Gambar**: Logo asli dari `img/Logo 1.jpeg`, `img/logo-160.jpg` (crop 160x160), ilustrasi packshot vektor untuk kartu katalog fallback
+## Fitur
 
-## Alur Halaman
+### Autentikasi dan akun
 
-### `login.php` — Halaman Masuk (50:50 Split)
+- Login dengan `password_verify()` dan session
+- Registrasi pelanggan baru
+- Lupa password dengan token sekali pakai (berlaku 1 jam)
+- Reset password melalui tautan token
+- Edit profil, ganti nama, alamat, nomor HP, dan foto profil
+- Logout dan proteksi halaman berdasarkan role
 
-- **Kiri**: Branding hijau dengan logo asli (lingkaran crop), deskripsi "FlowStuckHub", tombol "Daftar".
-- **Kanan**: Form login lengkap:
-  - Username & password (dari database MySQL)
-  - CSRF token otomatis
-  - `password_verify()` untuk verifikasi login
-  - `home_for()` menuju halaman beranda berdasarkan role
-- **Akses**: `gudang/gudang123` (admin), `purchasing/super123`, `budi/budi123`
-- **Setelah login**: Redirect ke `admin.php` (role admin/super_admin) atau `user/katalog.php` (role user)
+### Pelanggan (`user`)
 
-### `katalog.php` — Katalog Barang (Storefront Demo)
+- Katalog barang dari database dengan pencarian dan keranjang
+- Pengajuan pesanan
+- Status pengiriman dan riwayat pesanan
+- Pengajuan retur barang rusak dengan unggah foto
+- Halaman profil
 
-- **Fitur utama**:
-  - Grid produk 3 kolom (lg), 1 kolom (ponsel) dengan tile studio hijau yang konsisten
-  - 6 SKU: Air mineral, Beras, Gula, Kopi, Mie instan, Minyak
-  - Pencarian nama/SKU/deskripsi/kategori
-  - Filter kategori (Chip interaktif)
-  - Urutan: Nama A-Z, Harga terendah, Stok terbanyak
-  - Ringkasan stok: SKU aktif, kategori, siap dipesan, stok habis
-  - Keranjang pesanan (sidebar drawer):
-    - Tambah barang dari katalog (validasi stok)
-    - Stepper jumlah (naik/turun/hapus)
-    - Subtotal otomatis
-    - Kosongkan pesanan
-    - Checkout demo (toast konfirmasi)
-    - Penyimpanan `sessionStorage` (`fsh-cart-v1`)
-    - Escape menutup, overlay klik, fokus trap
-  - Empty state saat tidak ada hasil
-  - Ilustrasi packshot vektor fallback kalau foto belum ada
+### Admin gudang (`admin`)
 
-- **Penempatan foto**:
-  - Foto produk otomatis dari `img/products/` dengan slug: `air-mineral`, `beras`, `gula`, `kopi`, `mie-instan`, `minyak`
-  - Format: jpg, jpeg, png, webp
-  - Kalau foto belum ada: tile hijau dengan ilustrasi SVG konsisten
+- Dashboard ringkasan stok dan mutasi
+- Pencatatan barang masuk dan keluar
+- Pengelolaan surat jalan
+- Pemantauan retur
 
-- **Jumlah data**: 6 produk, stok variabel (0–210), kategori: Minuman, Bahan Pokok, Makanan Instan, Minyak & Bumbu
+### Super admin (`super_admin`)
 
-### `admin.php` — Dashboard Admin
+- Dashboard dan ringkasan seluruh gudang
+- Kelola data barang (tambah dan ubah)
+- Update stok
+- Laporan logistik dan rincian mutasi
+- Kelola retur
+- Akses penuh ke modul admin
 
-- **Fitur**:
-  - 4 kartu ringkasan: SKU aktif, kategori, siap dipesan, stok habis
-  - Chart.js: Line chart (+Doughnut chart) tren 7 hari terakhir barang masuk/keluar
-  - Tabel transaksi 5 baris terakhir (mutasi barang)
-  - Navigasi sidebar dengan logo, nama admin, dan menu (Dashboard, Laporan → Segera)
-  - Chart fallback jika CDN gagal muat
-  - Tidak memerlukan foto produk
+### Halaman demo statis
 
-### `user/katalog.php` — Katalog Customer (Lama, DB-backed)
+- `katalog.php`: storefront contoh dengan grid produk, filter kategori, pencarian, urutan, keranjang `sessionStorage`, dan ilustrasi packshot vektor
+- `admin.php`: dashboard contoh dengan 4 kartu ringkasan, grafik Chart.js, dan tabel transaksi
 
-- Dipakai oleh role `user` setelah login
-- Menggunakan database live (barang dari MySQL)
+## Teknologi
 
-### `dashboard.php` — Dashboard Admin (Lama, DB-backed)
+- PHP 8 Native tanpa framework
+- MySQL atau MariaDB melalui PDO prepared statement
+- Tailwind CSS melalui CDN dengan konfigurasi kustom
+- Vanilla JavaScript
+- Chart.js 4.4.1 melalui CDN
+- Font Plus Jakarta Sans melalui Google Fonts
+- Ikon SVG inline
 
-- Menggunakan database live untuk stok, mutasi, surat jalan, retur
-
-## Instalasi Lokal
-
-1. **Persyaratan**:
-   - XAMPP (Apache + MySQL) terinstal
-   - Port Apache: 80, Port MySQL: 3306
-
-2. **Setup database**:
-   - Jalankan `XAMPP Control Panel`, start Apache dan MySQL
-   - Buka `http://localhost/phpmyadmin`
-   - Buat database baru bernama `flowstuckhub`
-   - Import file `database/flowstuckhub.sql`
-   - (Opsional) Jalankan `database/seed_users.php` untuk menyematkan akun contoh, lalu hapus file tersebut
-
-3. **Jalankan aplikasi**:
-   - Letak folder `flowstuckhub` di `htdocs/XAMPP`
-   - Buka `http://localhost/flowstuckhub/login.php`
-
-4. **Akun contoh**:
-   - `gudang/gudang123` → role admin
-   - `purchasing/super123` → role super_admin
-   - `budi/budi123` → role user
-
-## Struktur Folder
+## Struktur folder
 
 ```
-/flowstuckhub
-├─ img/                  → Logo asli & crop 160x160
-│  ├─ Logo 1.jpeg      → Sumber logo (1024x1024)
-│  └─ logo-160.jpg     → Crop 160x160 untuk favicon & lockup
-├─ img/products/         → Foto produk (jika ada)
-│  ├─ air-mineral.jpg
-│  ├─ beras.jpg
-│  ├─ gula.jpg
-│  ├─ kopi.jpg
-│  ├─ mie-instan.jpg
-│  └─ minyak.jpg
-├─ includes/             → Fungsi PHP bawaan
-│  ├─ auth.php           → e(), user(), home_for(), csrf_field(), csrf_check()
-│  ├─ header.php         → Header & sidebar navigasi
-│  ├─ footer.php         → Footer
-│  └─ database.php       → PDO connection, BASE = '/flowstuckhub/'
-├─ config/
-│  └─ database.php       → DSN, user root, pass ''
-├─ database/
-│  ├─ flowstuckhub.sql   → Schema & seed data barang
-│  └─ seed_users.php     → Seed akun login
+flowstuckhub/
+├─ admin/                     Modul admin gudang
+│  ├─ index.php               Dashboard admin
+│  ├─ surat-jalan.php         Pengelolaan surat jalan
+│  └─ update-barang.php       Catat mutasi stok masuk dan keluar
+├─ super_admin/               Modul super admin
+│  ├─ index.php               Dashboard super admin
+│  ├─ barang.php              Kelola barang
+│  ├─ update-stok.php         Update stok
+│  ├─ laporan.php             Laporan logistik dan mutasi
+│  └─ retur.php               Kelola retur
+├─ user/                      Modul pelanggan
+│  ├─ katalog.php             Katalog dari database
+│  ├─ profile.php             Edit profil
+│  ├─ retur.php               Daftar dan status retur
+│  ├─ retur-form.php          Formulir pengajuan retur
+│  └─ status-pengiriman.php   Status pengiriman pesanan
 ├─ assets/
-│  ├─ style.css          → CSS lama (navy/yellow, digunakan page lama)
+│  ├─ style.css               Gaya halaman lama
 │  └─ demo.css
-├─ login.php             → Halaman masuk 50:50
-├─ katalog.php           → Katalog storefront (demo)
-├─ admin.php             → Dashboard admin (demo)
-├─ register.php          → Daftar akun baru
-├─ index.php             → Redirect login handler
-├─ logout.php            → Hapus session
-├─ user/katalog.php      → Katalog customer (DB-backed)
-├─ dashboard.php         → Dashboard admin (DB-backed)
-└─ README.md             → Dokumentasi ini
+├─ config/
+│  └─ database.php            Koneksi PDO dan konstanta BASE
+├─ database/
+│  ├─ flowstuckhub.sql        Skema dan data contoh
+│  └─ seed_users.php          Seed akun contoh (hapus setelah dipakai)
+├─ img/
+│  ├─ Logo 1.jpeg             Logo sumber 1024x1024
+│  ├─ logo-160.jpg            Logo 160x160 untuk UI dan favicon
+│  └─ products/               Foto produk opsional
+├─ includes/
+│  ├─ auth.php                Session, CSRF, role, helper
+│  ├─ header.php              Header dan sidebar
+│  └─ footer.php              Footer
+├─ uploads/                   Unggahan foto retur dan barang
+├─ admin.php                  Demo dashboard statis
+├─ katalog.php                Demo storefront statis
+├─ login.php                  Halaman masuk
+├─ register.php               Halaman daftar
+├─ forgot-password.php        Lupa password
+├─ reset-password.php         Reset password
+├─ profile.php                Profil pengguna
+├─ dashboard.php              Dashboard admin berbasis database
+├─ index.php                  Redirect sesuai status login
+└─ logout.php                 Hapus session
 ```
 
-## Catatan Penting
+## Persyaratan
 
-- **Foto produk AI**: Semua 6 job generate gambar AI gagal karena `Your API key has expired`. Katalog tetap tampil karena ilustrasi packshot vektor bawaan. Untuk menampilkan foto asli, letakkan file ke `img/products/` dengan nama sesuai slug di atas.
-- **Mobile**: Sidebar drawer custom dengan overlay, Escape, focus trap, `inert`, dan pengawasan resize window.
-- **Theme**: Semua halaman baru (login, katalog, admin) pakai Tailwind CDN + Plus Jakarta Sans. Halaman lama (dashboard/user/katalog) masih pakai `assets/style.css` navy/yellow, tidak disentuh.
-- **Responsive**: 0 horizontal overflow di 320, 390, 768, 1024, 1440 px. Telah diverifikasi dengan Chrome headless + Chrome DevTools Protocol.
-- **Cart storage**: `sessionStorage` kunci `fsh-cart-v1`. Berakhir saat menutup tab, tapi survive reload halaman.
-- **Checkout**: Demo semata, hanya menampilkan toast "Pesanan demo dibuat" dan mengosongkan cart. Tidak ada pemrosesan pembayaran atau pengiriman.
+- PHP 8.0 atau lebih baru (disarankan 8.3)
+- MySQL 5.7+ atau MariaDB 10.4+
+- Apache (XAMPP, Laragon, atau server lain)
+- Browser modern
+- Koneksi internet untuk CDN Tailwind, Chart.js, dan Google Fonts
 
-## Conformance & Verifikasi
+## Instalasi
 
-- `php -l` bersih untuk `login.php`, `katalog.php`, `admin.php`
-- HTTP 200 untuk seluruh halaman
-- Console error 0 di Chrome headless 320/390/768/1024/1440
-- 0 horizontal overflow di semua breakpoint
-- Interaksi keranjang: add, stepper inc/dec, remove, clear, checkout — semua terbukti bekerja dengan `sessionStorage` persistence
-- Filter/search/sort menampilkan hasil yang benar
-- Empty state menampilkan pesan "Barang tidak ditemukan" dengan aksi "Tampilkan semua"
-- Logout mengarah ke login.php, login terproteksi CSRF & password_verify
-- Favicon & apple-touch-icon pakai `img/logo-160.jpg`
-- Warna utama: `#2E7D32` (hijau hutan), `#4CAF50` (light), `#1B5E20` (dark), `#CDDC39` (lime)
-- Font: Plus Jakarta Sans
-- Tidak ada em dash (`—`) di teks apapun
-- Tidak ada claim fabricated (stok, testimonial, claim keamanan)
-- Tidak ada kloning produk populer — identitas visual sendiri
+1. Salin folder proyek ke direktori web server, misalnya `htdocs/flowstuckhub`.
+2. Nyalakan Apache dan MySQL.
+3. Buka `http://localhost/phpmyadmin`, buat database bernama `flowstuckhub`.
+4. Impor `database/flowstuckhub.sql`. File ini sudah berisi tabel, data barang, dan akun contoh.
+5. Sesuaikan `BASE` dan kredensial database di `config/database.php` bila perlu.
+6. Buka `http://localhost/flowstuckhub/login.php`.
+7. Opsional: jalankan `http://localhost/flowstuckhub/database/seed_users.php` untuk menambah akun contoh alternatif, lalu hapus file tersebut.
 
-## Roadmap (Sudah Dikerjakan)
+Jika database sudah pernah dibuat sebelumnya, jalankan bagian `ALTER TABLE` di akhir file SQL untuk menambah kolom baru tanpa menghapus data.
 
-- [x] `login.php` — visual baru, real DB auth preserved
-- [x] `katalog.php` — storefront rewrite: grid, filter, sort, cart drawer, stats, empty state
-- [x] `admin.php` — dashboard: 4 cards, Chart.js line+doughnut, 5-row table, drawer
-- [x] Logo integrasi: `img/logo-160.jpg` di sidebar/header/login, favicon, apple-touch-icon
-- [x] Mobile sidebar off-canvas drawer dengan fokus trap & inert
-- [x] Ilustrasi packshot vektor fallback untuk kartu katalog tanpa foto
-- [x] Verifikasi overflow & console error di 5 breakpoint
-- [x] Cart interaksi: add, stepper, remove, clear, checkout, sessionStorage
-- [x] Pencarian, filter kategori, urutan harga/stok/nama
-- [x] Empty state dengan aksi "Tampilkan semua"
-- [x] Toast notifikasi untuk add-to-cart & checkout
+## Akun demo
+
+Akun dari `database/flowstuckhub.sql` (password semuanya `password`):
+
+| Username | Password | Role |
+| --- | --- | --- |
+| `superadmin` | `password` | super_admin |
+| `admin` | `password` | admin |
+| `driver_andi` | `password` | user |
+| `budi` | `password` | user |
+| `citra` | `password` | user |
+
+Akun tambahan dari `database/seed_users.php`:
+
+| Username | Password | Role |
+| --- | --- | --- |
+| `purchasing` | `super123` | super_admin |
+| `gudang` | `gudang123` | admin |
+| `budi` | `budi123` | user |
+
+Ganti password akun demo sebelum dipakai di lingkungan nyata.
+
+## Hak akses halaman
+
+| Halaman | user | admin | super_admin |
+| --- | --- | --- | --- |
+| `user/katalog.php` | Ya | Tidak | Tidak |
+| `user/status-pengiriman.php` | Ya | Tidak | Tidak |
+| `user/retur.php` | Ya | Tidak | Tidak |
+| `profile.php` | Ya | Ya | Ya |
+| `admin/index.php` | Tidak | Ya | Ya |
+| `admin/update-barang.php` | Tidak | Ya | Ya |
+| `admin/surat-jalan.php` | Tidak | Ya | Ya |
+| `super_admin/index.php` | Tidak | Tidak | Ya |
+| `super_admin/barang.php` | Tidak | Tidak | Ya |
+| `super_admin/laporan.php` | Tidak | Tidak | Ya |
+| `super_admin/retur.php` | Tidak | Tidak | Ya |
+
+Setelah login, pengguna diarahkan otomatis: `user` ke `user/katalog.php`, `admin` dan `super_admin` ke `dashboard.php`.
+
+## Halaman demo statis
+
+`katalog.php` dan `admin.php` adalah halaman demo mandiri yang memakai data contoh di dalam file, bukan database. Keduanya berguna untuk presentasi tampilan.
+
+- `katalog.php` punya filter kategori, urutan harga dan stok, keranjang dengan `sessionStorage` (`fsh-cart-v1`), dan checkout demo.
+- `admin.php` punya grafik Chart.js dan tabel transaksi contoh.
+
+Halaman demo ini tidak terhubung ke autentikasi. Lindungi atau hapus sebelum dipakai di produksi.
+
+## Catatan keamanan
+
+- Password disimpan dengan `password_hash()` dan diverifikasi dengan `password_verify()`.
+- Form menggunakan token CSRF melalui `csrf_field()` dan `csrf_check()`.
+- Query database memakai PDO prepared statement.
+- `database/seed_users.php` hanya untuk pengembangan. Hapus setelah dijalankan.
+- `forgot-password.php` menampilkan token reset di halaman saat mode lokal untuk memudahkan pengujian tanpa email. Hapus tampilan tersebut dan sambungkan ke pengiriman email sebelum produksi.
+- Kredensial database bawaan (`root` tanpa password) hanya cocok untuk XAMPP lokal.
+
+## Kustomisasi
+
+### Logo
+
+Ganti `img/Logo 1.jpeg` dengan logo baru, lalu buat versi 160x160:
+
+```bash
+sips -z 160 160 -s format jpeg -s formatOptions 80 "img/Logo 1.jpeg" --out img/logo-160.jpg
+```
+
+### Foto produk
+
+Taruh foto di `img/products/` dengan nama sesuai slug:
+
+```
+air-mineral.jpg
+beras.jpg
+gula.jpg
+kopi.jpg
+mie-instan.jpg
+minyak.jpg
+```
+
+Format yang didukung: jpg, jpeg, png, webp. Jika foto belum ada, halaman katalog demo memakai ilustrasi vektor bawaan.
+
+### Warna dan font
+
+Warna utama didefinisikan di konfigurasi Tailwind pada setiap halaman demo:
+
+- `brand`: `#2E7D32`
+- `brand.light`: `#4CAF50`
+- `brand.dark`: `#1B5E20`
+- `accent`: `#CDDC39`
+
+### Menu navigasi
+
+Menu sidebar diatur di `includes/header.php`. Tambahkan entri setelah halaman barunya siap.
+
+## Troubleshooting
+
+**Koneksi database gagal**
+
+Pastikan MySQL menyala, database `flowstuckhub` sudah dibuat, dan kredensial di `config/database.php` sesuai.
+
+**Halaman menampilkan 403**
+
+Akun yang dipakai tidak memiliki role untuk halaman tersebut. Login dengan role yang sesuai.
+
+**CSS atau grafik tidak muncul**
+
+Tailwind dan Chart.js dimuat dari CDN. Pastikan koneksi internet aktif. Halaman demo `admin.php` memiliki fallback saat Chart.js gagal dimuat.
+
+**Token reset password tidak valid**
+
+Token berlaku 1 jam dan hanya bisa dipakai sekali. Ulangi proses lupa password.
+
+**Folder uploads tidak bisa menulis**
+
+Beri izin tulis ke `uploads/barang` dan `uploads/retur` sesuai user web server.
+
+## Lisensi
+
+Belum ditentukan. Tambahkan file `LICENSE` sebelum publikasi jika diperlukan.

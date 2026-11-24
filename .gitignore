@@ -4,7 +4,6 @@
 
 # Dependencies
 /vendor/
-/vendor/
 
 # Compiled resources
 /dist/
@@ -14,8 +13,11 @@
 .env*
 *.env
 
-# Uploads & media temp
-/uploads/*/.DS_Store
+# Uploads (keep folder structure)
+/uploads/barang/*
+!/uploads/barang/.gitkeep
+/uploads/retur/*
+!/uploads/retur/.gitkeep
 
 # IDE / Editor
 .idea/

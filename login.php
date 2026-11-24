@@ -123,7 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div>
-          <label for="password" class="mb-1.5 block text-sm font-semibold text-gray-700">Password</label>
+          <div class="mb-1.5 flex items-center justify-between">
+            <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
+            <a href="<?= BASE ?>forgot-password.php" class="text-xs font-semibold text-brand hover:underline">Lupa password?</a>
+          </div>
           <input
             id="password"
             name="password"
